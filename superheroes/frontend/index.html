@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personajes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e0f7fa; /* Color de fondo suave azul claro */
+        }
+        h1, h2 {
+            text-align: center;
+            color: #006064; /* Azul oscuro para encabezados */
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none; /* Quitar bordes de las tarjetas */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Agregar sombra sutil */
+            background-color: #ffffff; /* Fondo blanco para tarjetas */
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-title, .card-text {
+            color: #004d40; /* Verde oscuro para texto en tarjetas */
+        }
+        .btn-primary {
+            background-color: #00796b; /* Verde oscuro para botones principales */
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #00574b; /* Verde más oscuro al pasar el mouse */
+        }
+        .btn-success {
+            background-color: #00796b;
+            border: none;
+        }
+        .btn-warning {
+            background-color: #ffb300; /* Amarillo fuerte para modificar */
+            border: none;
+        }
+        .btn-danger {
+            background-color: #d32f2f; /* Rojo oscuro para eliminar */
+            border: none;
+        }
+        #results {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Personajes</h1>
+
+    <!-- Carrusel de imágenes laterales -->
+    <div class="container my-4">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="imagenes/Hulk.png" alt="Imagen decorativa 1" class="img-fluid rounded mb-4">
+            </div>
+            <div class="col-md-6">
+                <img src="imagenes/Batman.png" alt="Imagen decorativa 2" class="img-fluid rounded mb-4">
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de búsqueda -->
+    <div class="container">
+        <form id="searchForm" class="text-center mb-4">
+            <input type="text" id="searchInput" placeholder="Ingresa el alias o nombre" class="form-control w-50 mx-auto">
+            <button type="submit" class="btn btn-primary mt-2">Buscar</button>
+        </form>
+
+        <!-- Resultados de búsqueda -->
+        <div id="results" class="row row-cols-1 row-cols-md-3 g-4"></div>
+
+        <!-- Formulario para agregar un personaje -->
+        <h2 class="my-4">Agregar Personaje</h2>
+        <form id="addForm" class="text-center">
+            <div class="mb-3">
+                <input type="text" id="alias" placeholder="Alias" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="text" id="nombre" placeholder="Nombre" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="number" id="edad" placeholder="Edad" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Agregar</button>
+        </form>
+
+        <!-- Carrusel de personajes destacados -->
+        <h2 class="my-4">Personajes Destacados</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4 carousel-container"></div>
+
+        <!-- Formulario para modificar personaje -->
+        <h2 class="my-4">Modificar Personaje</h2>
+        <form id="editForm" class="text-center">
+            <input type="hidden" id="editId">
+            <div class="mb-3">
+                <input type="text" id="editAlias" placeholder="Alias" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="text" id="editNombre" placeholder="Nombre" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="number" id="editEdad" placeholder="Edad" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-warning">Aceptar</button>
+        </form>
+
+        <!-- Formulario de Registro -->
+        <h2 class="my-4">Registro</h2>
+        <form id="registerForm" class="text-center">
+            <div class="mb-3">
+                <input type="text" id="username" placeholder="Nombre de usuario" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="password" placeholder="Contraseña" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+
+        <!-- Formulario de Login -->
+        <h2 class="my-4">Login</h2>
+        <form id="loginForm" class="text-center">
+            <div class="mb-3">
+                <input type="text" id="loginUsername" placeholder="Nombre de usuario" required class="form-control">
+            </div>
+            <div class="mb-3">
+                <input type="password" id="loginPassword" placeholder="Contraseña" required class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = "http://127.0.0.1:8000/personajes/";
+
+        // Manejo del formulario de búsqueda
+        document.getElementById("searchForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const searchTerm = document.getElementById("searchInput").value;
+            const results = document.getElementById("results");
+            results.innerHTML = "Buscando...";
+
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("Error al buscar personajes");
+                const personajes = await response.json();
+                results.innerHTML = "";
+
+                personajes
+                    .filter(p => p.alias.includes(searchTerm) || p.nombre.includes(searchTerm))
+                    .forEach(p => {
+                        const card = document.createElement("div");
+                        card.className = "col d-flex justify-content-center";
+                        card.innerHTML = 
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">${p.alias}</h5>
+                                    <p class="card-text">Nombre: ${p.nombre}</p>
+                                    <p class="card-text">Edad: ${p.edad}</p>
+                                    <button onclick="saveFavoriteCharacter(${p.idpersonaje})" class="btn btn-info">Favorito</button>
+                                    <button onclick="showEditForm(${p.idpersonaje})" class="btn btn-warning">Modificar</button>
+                                    <button onclick="deleteCharacter(${p.idpersonaje})" class="btn btn-danger">Eliminar</button>
+                                </div>
+                            </div>
+                        ;
+                        results.appendChild(card);
+                    });
+            } catch (error) {
+                console.error(error);
+                results.innerHTML = "Error al buscar personajes.";
+            }
+        });
+
+        // Funciones para agregar, editar, eliminar personajes y guardar favoritos...
+
+    </script>
+</body>
+</html>

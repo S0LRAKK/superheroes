@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Personaje</title>
+    <style>
+        .details {
+            text-align: center;
+            padding: 20px;
+        }
+        .details img {
+            max-width: 200px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="details">
+        <h1 id="alias"></h1>
+        <img id="image" src="default-avatar.png" alt="Avatar">
+        <p id="nombre"></p>
+        <p id="edad"></p>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idpersonaje = params.get("id");
+
+        async function fetchCharacter() {
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/personajes/${idpersonaje}`);
+                if (!response.ok) throw new Error("Error al obtener detalles del personaje");
+
+                const personaje = await response.json();
+                document.getElementById("alias").textContent = personaje.alias;
+                document.getElementById("nombre").textContent = `Nombre: ${personaje.nombre}`;
+                document.getElementById("edad").textContent = `Edad: ${personaje.edad}`;
+            } catch (error) {
+                console.error(error);
+                document.body.innerHTML = "Error al cargar el personaje.";
+            }
+        }
+
+        fetchCharacter();
+    </script>
+</body>
+</html>
